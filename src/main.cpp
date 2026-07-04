@@ -3,6 +3,7 @@
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QIcon>
 #include <QQuickStyle>
 #include <glaze/glaze.hpp>
 
@@ -12,6 +13,9 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    app.setWindowIcon(QIcon(":/resources/horos.svg"));
+    app.setDesktopFileName("horos");
+
     QQuickStyle::setStyle("org.kde.desktop");
 
     qDebug() << "Current shell: " << static_cast<int>(GetShell().value());

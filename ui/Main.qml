@@ -5,6 +5,7 @@ import horos 1.0
 
 ApplicationWindow {
     id: window
+
     width: 800
     height: 600
     title: qsTr("Horos - Edit environment variables")

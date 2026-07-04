@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Horos
+Comment=Environment variable editor GUI application
+Exec=horos
+Icon=horos
+Terminal=false
+Categories=Utility;Settings;

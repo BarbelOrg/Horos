@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>ui/Main.qml</file>
+
+        <file>resources/horos.svg</file>
     </qresource>
 </RCC>
