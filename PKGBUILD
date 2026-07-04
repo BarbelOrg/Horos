@@ -1,14 +1,14 @@
 # Maintainer: KingdomOfCpp
 pkgname=horos
-pkgver=r5.7c4fc46
+pkgver=r3.2deed54
 pkgrel=1
 pkgdesc="Horos - Environment variable editor GUI application"
 arch=('x86_64')
-url="https://github.com/KingdomOfCpp/horos"
+url="https://github.com/BarbelOrg/Horos"
 license=('custom')
 depends=('qt6-base' 'qt6-declarative')
 makedepends=('xmake' 'gcc' 'git' 'qt6-tools')
-source=("git+https://github.com/KingdomOfCpp/horos.git")
+source=("git+https://github.com/BarbelOrg/horos.git")
 sha256sums=('SKIP')
 
 pkgver() {
