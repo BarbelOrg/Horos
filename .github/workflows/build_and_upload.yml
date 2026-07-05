@@ -31,13 +31,16 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.10.0'
-          modules: 'qtdeclarative qtshadertools'
+          modules: 'qtshadertools'
           cache: true
 
       - name: Install extra build deps
         run: |
           sudo apt-get install -y libgl1-mesa-dev
-
+        with:
+          version: '6.10.0'
+          modules: 'qtshadertools'
+          cache: true
       - name: Cache xmake packages
         uses: actions/cache@v6
         with:
@@ -51,7 +54,7 @@ jobs:
       - name: Configure
         run: |
           export XMAKE_ROOT=y
-          xmake f -m release --toolchain=gcc --cc=gcc-16 --cxx=g++-16 -y
+          xmake f -m release --toolchain=gcc -y
 
       - name: Build
         run: |
