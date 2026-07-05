@@ -4,6 +4,7 @@ if is_mode("release") then
     set_policy("build.optimization.lto", true)
 end
 
+add_requires("fmt")
 add_requires("glaze")
 add_requires("ctre")
 add_requires("fast_io")
@@ -20,7 +21,7 @@ target("horos")
 
     add_files("qml.qrc")
 
-    add_packages("glaze", "ctre", "fast_io", "flux")
+    add_packages("glaze", "ctre", "fast_io", "flux", "fmt")
 
     add_installfiles("assets/horos.desktop", {prefixdir = "share/applications"})
     add_installfiles("assets/horos.svg", {prefixdir = "share/icons/hicolor/scalable/apps"})
