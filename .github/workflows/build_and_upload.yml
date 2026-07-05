@@ -37,10 +37,7 @@ jobs:
       - name: Install extra build deps
         run: |
           sudo apt-get install -y libgl1-mesa-dev
-        with:
-          version: '6.10.0'
-          modules: 'qtshadertools'
-          cache: true
+
       - name: Cache xmake packages
         uses: actions/cache@v6
         with:
