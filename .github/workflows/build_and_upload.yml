@@ -27,15 +27,16 @@ jobs:
           gcc --version
           g++ --version
 
-      - name: Install Qt6 and build deps
+      - name: Install Qt 6.10
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.10.0'
+          modules: 'qtdeclarative qtshadertools'
+          cache: true
+
+      - name: Install extra build deps
         run: |
-          sudo apt-get install -y \
-            qt6-base-dev \
-            qt6-declarative-dev \
-            qml6-module-qtquick \
-            qml6-module-qtquick-controls \
-            qml6-module-qtqml-workerscript \
-            libgl1-mesa-dev
+          sudo apt-get install -y libgl1-mesa-dev
 
       - name: Cache xmake packages
         uses: actions/cache@v6
