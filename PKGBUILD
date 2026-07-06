@@ -1,8 +1,8 @@
 # Maintainer: KingdomOfCpp
 pkgname=horos
-pkgver=r3.2deed54
+pkgver=r8.71e3fe6
 pkgrel=1
-pkgdesc="Horos - Environment variable editor GUI application"
+pkgdesc="Horos - Environment variable editor tool"
 arch=('x86_64')
 url="https://github.com/BarbelOrg/Horos"
 license=('custom')

@@ -1,5 +1,6 @@
 #pragma once
 #include "shell.hpp"
+#include <QProcessEnvironment>
 
 #include <string>
 #include <vector>
@@ -9,6 +10,7 @@ class EnvVarManager
 {
     Shell shell;
     std::unordered_map<std::string, std::string> vars;
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 public:
     static EnvVarManager LoadForCurrentShell();
     static EnvVarManager Load(Shell shell);
@@ -16,6 +18,12 @@ public:
 
     bool Set(const std::string& name, const std::string& value);
     bool Remove(const std::string& name);
+
+    bool IsPathLike(std::string_view str);
+    bool AddPathLike(const std::string& name, const std::string& value);
+    bool RemovePathLike(const std::string& name, const std::string& entry);
+
+    void Clear();
 
     bool IsValidKey(std::string_view key);
 

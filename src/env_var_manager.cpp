@@ -6,12 +6,21 @@
 #include "string_utils.hpp"
 #include "unix_utils.hpp"
 
-#include <ctre.hpp>
 #include <QDebug>
+#include <ctre.hpp>
 #include <fast_io.h>
 #include <fast_io_device.h>
+#include <flux.hpp>
+#include <flux/core/assert.hpp>
+#include <fmt/format.h>
 #include <glaze/json/write.hpp>
 #include <glaze/util/glaze_fast_float.hpp>
+
+#ifdef __linux
+constexpr auto kSeperator = ':';
+#else
+constexpr auto kSeperator = ';';
+#endif
 
 bool EnvVarManager::IsValidKey(std::string_view key)
 {
@@ -52,8 +61,9 @@ void EnvVarManager::Save()
         if (shell == Shell::Bash || shell == Shell::Zsh)
         {
             EnsureEnvIsSourced(shell);
-            auto obuf = fast_io::obuf_file(GetEnvShPathForShell(shell).value(), fast_io::open_mode::out | fast_io::open_mode::trunc);
-            for (const auto& [key, value] : vars)
+            auto obuf = fast_io::obuf_file(GetEnvShPathForShell(shell).value(),
+                                           fast_io::open_mode::out | fast_io::open_mode::trunc);
+            for (const auto &[key, value] : vars)
             {
                 if (!IsValidKey(key))
                 {
@@ -69,7 +79,8 @@ void EnvVarManager::Save()
     // 2nd write the json
     {
         auto filename = std::format("horos_{}.json", static_cast<int>(shell));
-        auto ec = glz::write_file_json<glz::opts{.prettify = true}>(vars, (GetConfigPath() / "horos" / filename).c_str(), std::string());
+        auto ec = glz::write_file_json<glz::opts{.prettify = true}>(
+            vars, (GetConfigPath() / "horos" / filename).c_str(), std::string());
         if (ec)
             throw std::runtime_error("Failed to write env vars to json");
     }
@@ -94,6 +105,25 @@ bool EnvVarManager::Set(const std::string &name, const std::string &value)
     return found;
 }
 
+bool EnvVarManager::AddPathLike(const std::string &name, const std::string &value)
+{
+    if (!vars.contains(name))
+    {
+        auto base = std::string();
+        if (auto envVal = std::getenv(name.c_str()))
+            base = envVal;
+        vars[name] = base;
+    }
+
+    if (shell == Shell::Fish)
+        throw std::runtime_error("AddPathLike: fish not implemented");
+
+    auto &current = vars[name];
+    auto valueStr = current.empty() ? value : fmt::format("{}{}{}", current, kSeperator, value);
+
+    return Set(name, valueStr);
+}
+
 bool EnvVarManager::Remove(const std::string &name)
 {
     auto found = vars.contains(name);
@@ -105,4 +135,35 @@ bool EnvVarManager::Remove(const std::string &name)
     }
 
     return found;
+}
+
+bool EnvVarManager::IsPathLike(std::string_view str)
+{
+    return str.contains(kSeperator);
+}
+
+bool EnvVarManager::RemovePathLike(const std::string &name, const std::string &entry)
+{
+    // TODO have it works with overrides
+    if (!vars.contains(name))
+        return false;
+
+    auto joined = flux::split_string(flux::ref(vars[name]), kSeperator)
+                      .map([](auto &&r) { return std::string_view(r); })
+                      .filter([&entry](auto &&r) { return r != entry; })
+                      .fold(
+                          [](std::string acc, std::string_view piece) {
+                              if (!acc.empty())
+                                  acc += kSeperator;
+                              acc += piece;
+                              return acc;
+                          },
+                          std::string());
+
+    return Set(name, joined);
+}
+
+void EnvVarManager::Clear()
+{
+    vars.clear();
 }
