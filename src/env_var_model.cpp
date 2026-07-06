@@ -114,3 +114,87 @@ bool EnvVarModel::removeVariable(int row)
     manager.Save();
     return true;
 }
+
+bool EnvVarModel::renameVariable(int row, const QString &newName)
+{
+    if (row < 0 || row >= orderedNames.size())
+        return false;
+
+    const QString oldName = orderedNames[row];
+    if (oldName == newName)
+        return true;
+    if (!manager.IsValidKey(newName.toStdString()))
+        return false;
+    if (manager.Vars().contains(newName.toStdString()))
+        return false; // don't clobber an existing var
+
+    beginResetModel();
+    bool ok = manager.Rename(oldName.toStdString(), newName.toStdString());
+    if (ok)
+        rebuildOrder();
+    endResetModel();
+
+    if (ok)
+        manager.Save();
+    return ok;
+}
+
+bool EnvVarModel::addPathLike(const QString& name, const QString& value)
+{
+    const bool isNewRow = !manager.Vars().contains(name.toStdString());
+
+    if (isNewRow) {
+        int row = std::lower_bound(orderedNames.begin(), orderedNames.end(), name) - orderedNames.begin();
+        beginInsertRows(QModelIndex(), row, row);
+        bool ok = manager.AddPathLike(name.toStdString(), value.toStdString());
+        if (ok)
+            orderedNames.insert(row, name);
+        endInsertRows();
+        if (!ok)
+            return false;
+    } else {
+        if (!manager.AddPathLike(name.toStdString(), value.toStdString()))
+            return false;
+        int row = orderedNames.indexOf(name);
+        if (row >= 0)
+            emit dataChanged(index(row), index(row), { ValueRole });
+    }
+
+    manager.Save();
+    return true;
+}
+
+bool EnvVarModel::removePathLike(const QString& name, const QString& entry)
+{
+    if (!manager.Vars().contains(name.toStdString()))
+        return false;
+
+    if (!manager.RemovePathLike(name.toStdString(), entry.toStdString()))
+        return false;
+
+    int row = orderedNames.indexOf(name);
+    if (row >= 0)
+        emit dataChanged(index(row), index(row), { ValueRole });
+
+    manager.Save();
+    return true;
+}
+
+bool EnvVarModel::isPathLike(int row) const
+{
+    if (row < 0 || row >= orderedNames.size())
+        return false;
+    auto it = manager.Vars().find(orderedNames[row].toStdString());
+    if (it == manager.Vars().end())
+        return false;
+    return manager.IsPathLike(it->second);
+}
+
+void EnvVarModel::clear()
+{
+    beginResetModel();
+    manager.Clear();
+    rebuildOrder();
+    endResetModel();
+    manager.Save();
+}

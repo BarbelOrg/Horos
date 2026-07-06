@@ -54,7 +54,7 @@ ApplicationWindow {
                 anchors.rightMargin: 8
                 Label { text: qsTr("Name");  font.bold: true; Layout.preferredWidth: 250 }
                 Label { text: qsTr("Value"); font.bold: true; Layout.fillWidth: true }
-                Label { text: "";             Layout.preferredWidth: 76 } // Placeholder matching the edit/delete buttons
+                Label { text: "";             Layout.preferredWidth: 40 }
             }
         }
 
@@ -82,25 +82,29 @@ ApplicationWindow {
                     anchors.leftMargin: 8
                     anchors.rightMargin: 8
 
-                    Label {
-                        text: model.name // Uses NameRole from C++
+                    TextField {
+                        id: nameField
+                        text: model.name
                         Layout.preferredWidth: 250
-                        elide: Text.ElideRight
+
+                        onEditingFinished: {
+                            if (text !== model.name) {
+                                if (!envModel.renameVariable(index, text)) {
+                                    text = model.name
+                                }
+                            }
+                        }
                     }
 
-                    Label {
-                        text: model.value // Uses ValueRole from C++
+                    TextField {
+                        id: valueField
+                        text: model.value
                         Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
 
-                    ToolButton {
-                        icon.name: "document-edit"
-                        display: AbstractButton.IconOnly
-                        Layout.preferredWidth: 32
-                        onClicked: editDialog.openForEdit(index, model.name, model.value)
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Edit")
+                        onEditingFinished: {
+                            if (text !== model.value)
+                                envModel.setValue(index, text)
+                        }
                     }
 
                     ToolButton {
@@ -116,31 +120,15 @@ ApplicationWindow {
         }
     }
 
-    // Add/Edit dialog (shared)
     Dialog {
         id: editDialog
-        title: isNew ? qsTr("New Environment Variable") : qsTr("Edit Environment Variable")
+        title: qsTr("New Environment Variable")
         modal: true
         anchors.centerIn: parent
         standardButtons: Dialog.Save | Dialog.Cancel
 
-        property int targetRow: -1
-        property bool isNew: false
-
-        function openForEdit(row, varName, varValue) {
-            isNew = false
-            targetRow = row
-            nameField.text = varName
-            nameField.readOnly = true
-            valueField.text = varValue
-            open()
-        }
-
         function openForNew() {
-            isNew = true
-            targetRow = -1
             nameField.text = ""
-            nameField.readOnly = false
             valueField.text = ""
             open()
         }
@@ -160,13 +148,7 @@ ApplicationWindow {
             }
         }
 
-        onAccepted: {
-            if (isNew) {
-                envModel.addVariable(nameField.text, valueField.text)
-            } else {
-                envModel.setValue(targetRow, valueField.text)
-            }
-        }
+        onAccepted: envModel.addVariable(nameField.text, valueField.text)
     }
 
     // Delete confirmation

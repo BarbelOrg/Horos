@@ -18,8 +18,9 @@ public:
 
     bool Set(const std::string& name, const std::string& value);
     bool Remove(const std::string& name);
+    bool Rename(const std::string& oldName, const std::string& newName);
 
-    bool IsPathLike(std::string_view str);
+    static bool IsPathLike(std::string_view str);
     bool AddPathLike(const std::string& name, const std::string& value);
     bool RemovePathLike(const std::string& name, const std::string& entry);
 

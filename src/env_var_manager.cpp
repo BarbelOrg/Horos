@@ -137,6 +137,26 @@ bool EnvVarManager::Remove(const std::string &name)
     return found;
 }
 
+bool EnvVarManager::Rename(const std::string &oldName, const std::string &newName)
+{
+    if (oldName == newName)
+        return true;
+    if (!vars.contains(oldName))
+        return false;
+    if (vars.contains(newName))
+        return false; // don't silently clobber an existing var
+    if (!IsValidKey(newName))
+    {
+        qCritical() << "Invalid env var key: " << QString::fromUtf8(newName.data(), newName.size());
+        return false;
+    }
+
+    auto value = vars[oldName];
+    Remove(oldName);
+    Set(newName, value);
+    return true;
+}
+
 bool EnvVarManager::IsPathLike(std::string_view str)
 {
     return str.contains(kSeperator);

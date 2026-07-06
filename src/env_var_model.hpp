@@ -22,9 +22,16 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE void refresh();
+
     Q_INVOKABLE bool addVariable(const QString& name, const QString& value);
     Q_INVOKABLE bool setValue(int row, const QString& value);
     Q_INVOKABLE bool removeVariable(int row);
+
+    Q_INVOKABLE bool renameVariable(int row, const QString& newName);
+    Q_INVOKABLE bool addPathLike(const QString& name, const QString& value);
+    Q_INVOKABLE bool removePathLike(const QString& name, const QString& entry);
+    Q_INVOKABLE bool isPathLike(int row) const;
+    Q_INVOKABLE void clear();
 
 private:
     EnvVarManager manager;
