@@ -1,7 +1,7 @@
 # Maintainer: KingdomOfCpp
 pkgname=horos
-pkgver=r8.71e3fe6
-pkgrel=1
+pkgver="1.0.0"
+pkgrel=2
 pkgdesc="Horos - Environment variable editor tool"
 arch=('x86_64')
 url="https://github.com/BarbelOrg/Horos"
@@ -10,11 +10,6 @@ depends=('qt6-base' 'qt6-declarative')
 makedepends=('xmake' 'gcc' 'git' 'qt6-tools')
 source=("git+https://github.com/BarbelOrg/horos.git")
 sha256sums=('SKIP')
-
-pkgver() {
-    cd "$pkgname"
-    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-}
 
 build() {
     cd "$pkgname"
